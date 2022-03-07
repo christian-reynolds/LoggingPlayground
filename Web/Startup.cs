@@ -24,6 +24,11 @@ namespace Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+
+            // https://github.com/mo-esmp/serilog-enrichers-clientinfo
+            // You need to register the IHttpContextAccessor singleton
+            // so the enrichers have access to the requests HttpContext to extract client IP and client agent.
+            services.AddHttpContextAccessor();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
