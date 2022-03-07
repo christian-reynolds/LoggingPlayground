@@ -14,8 +14,8 @@ namespace Logging
         public static Logger GetInstance()
         {
             string assembly = Assembly.GetEntryAssembly().GetName().Name;
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var isDevelopment = environment == Environments.Development;
+            string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            bool isDevelopment = environment == Environments.Development;
 
             return new LoggerConfiguration()
                 .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)  // suppress information-level messages from ASP.NET Core components
