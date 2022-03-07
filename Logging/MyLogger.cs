@@ -24,6 +24,7 @@ namespace Logging
                 .Enrich.WithAssemblyVersion()
                 .Enrich.WithClientIp()   // https://github.com/mo-esmp/serilog-enrichers-clientinfo
                 .Enrich.WithClientAgent()
+                .Enrich.WithCorrelationId()   // https://github.com/ekmsystems/serilog-enrichers-correlation-id
                 .MinimumLevel.Debug()
                 //.WriteTo.File(@$"c:\LoggingPlaygroundLogs\{assembly}-log.txt", rollingInterval: RollingInterval.Day)
                 //.WriteTo.File(new RenderedCompactJsonFormatter(), @$"c:\LoggingPlaygroundLogs\{assembly}-log.txt", rollingInterval: RollingInterval.Day)
