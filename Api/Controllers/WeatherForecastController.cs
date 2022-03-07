@@ -27,16 +27,27 @@ namespace Api.Controllers
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
+            try
+            {
+                throw new Exception("This is my error msg!");
+            } catch (Exception ex)
+            {
+                // Proper way to log an error.  Exception along WITH a message.  Never log just the exception
+                _logger.LogError(ex, "Something bad happened!");
+            }
+            
             var post = new BlogPost("This is my test")
             {
                 Tags = new[] { "one", "two" }
             };
 
+            // Uses Serilog method to add properties to the context
             using (LogContext.PushProperty("A", 1))
             {
                 _logger.LogInformation("Testing the push property");
             }
 
+            // Same as the above example but using the standard ILogger to add properties to the context
             using (_logger.BeginScope("{@CustomId}", 19999))
             {
                 _logger.LogInformation("Publishing {@Post}", post);
