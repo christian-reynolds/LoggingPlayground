@@ -1,7 +1,9 @@
 ﻿using Serilog;
 using Serilog.Core;
+using Serilog.Events;
 //using Serilog.Formatting.Compact;
 using Serilog.Formatting.Json;
+using System;
 using System.Reflection;
 
 namespace Logging
@@ -13,11 +15,13 @@ namespace Logging
             string assembly = Assembly.GetEntryAssembly().GetName().Name;
 
             return new LoggerConfiguration()
-                .Enrich.FromLogContext()
+                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)  // suppress information-level messages from ASP.NET Core components
+                .Enrich.FromLogContext()  // allows the use of PushProperty() to dynamically add or remove properties
                 .MinimumLevel.Debug()
                 //.WriteTo.File(@$"c:\LoggingPlaygroundLogs\{assembly}-log.txt", rollingInterval: RollingInterval.Day)
                 //.WriteTo.File(new RenderedCompactJsonFormatter(), @$"c:\LoggingPlaygroundLogs\{assembly}-log.txt", rollingInterval: RollingInterval.Day)
                 .WriteTo.File(new JsonFormatter(), @$"c:\LoggingPlaygroundLogs\{assembly}-log.txt", rollingInterval: RollingInterval.Day)
+                .WriteTo.Seq(Environment.GetEnvironmentVariable("SEQ_URL") ?? "http://localhost:5341")
                 .CreateLogger();
         }
     }

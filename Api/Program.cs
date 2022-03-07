@@ -18,6 +18,8 @@ namespace Api
 
             try
             {
+                //throw new Exception("Something went wrong!!!");
+
                 Log.Information("Starting up");
                 CreateHostBuilder(args).Build().Run();
             }

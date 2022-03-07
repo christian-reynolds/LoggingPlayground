@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Serilog.Context;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +32,15 @@ namespace Api.Controllers
                 Tags = new[] { "one", "two" }
             };
 
-            _logger.LogInformation("Publishing {@Post}", post);
+            using (LogContext.PushProperty("A", 1))
+            {
+                _logger.LogInformation("Testing the push property");
+            }
+
+            using (_logger.BeginScope("{@CustomId}", 19999))
+            {
+                _logger.LogInformation("Publishing {@Post}", post);
+            }
 
             int quota = 100;
             string username = "tnatts";
