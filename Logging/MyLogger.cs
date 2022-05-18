@@ -6,6 +6,7 @@ using Serilog.Events;
 using Serilog.Formatting.Json;
 using System;
 using System.Reflection;
+using Serilog.Sinks.Datadog.Logs;
 
 namespace Logging
 {
@@ -16,6 +17,10 @@ namespace Logging
             string assembly = Assembly.GetEntryAssembly().GetName().Name;
             string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             bool isDevelopment = environment == Environments.Development;
+            string dataDogApiKey = Environment.GetEnvironmentVariable("DatadogApiKey");
+
+            // https://docs.datadoghq.com/logs/log_configuration/attributes_naming_convention/
+            //var config = new DatadogConfiguration(url: "https://http-intake.logs.us5.datadoghq.com");
 
             return new LoggerConfiguration()
                 .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)  // suppress information-level messages from ASP.NET Core components
@@ -33,6 +38,14 @@ namespace Logging
                 .MinimumLevel.Debug()
                 //.WriteTo.File(@$"c:\LoggingPlaygroundLogs\{assembly}-log.txt", rollingInterval: RollingInterval.Day)
                 //.WriteTo.File(new RenderedCompactJsonFormatter(), @$"c:\LoggingPlaygroundLogs\{assembly}-log.txt", rollingInterval: RollingInterval.Day)
+                .WriteTo.Conditional(evt => !string.IsNullOrEmpty(dataDogApiKey), wt =>
+                    wt.DatadogLogs(
+                        dataDogApiKey ?? "doNotWriteToDataDog",
+                        host: System.Environment.MachineName,
+                        source: "dotnet",
+                        service: assembly,
+                        configuration: new DatadogConfiguration(url: "https://http-intake.logs.us5.datadoghq.com")
+                    ))
                 .WriteTo.File(new JsonFormatter(), @$"c:\LoggingPlaygroundLogs\{assembly}-log.txt", rollingInterval: RollingInterval.Day)
                 .WriteTo.Conditional(evt => isDevelopment, wt => wt.Seq(Environment.GetEnvironmentVariable("SEQ_URL") ?? "http://localhost:5341"))
                 .CreateLogger();
