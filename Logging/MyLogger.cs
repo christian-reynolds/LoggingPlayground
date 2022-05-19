@@ -19,6 +19,7 @@ namespace Logging
             var isDevelopment = environment == Environments.Development;
             var dataDogApiKey = Environment.GetEnvironmentVariable("DatadogApiKey");
             var dataDogLogFilePath = Environment.GetEnvironmentVariable("DataDogLogFilePath");
+            var dataDogFileName = (string.IsNullOrEmpty(dataDogLogFilePath) ? "" : $"{dataDogLogFilePath}{assembly}.json");
 
             // https://docs.datadoghq.com/logs/log_configuration/attributes_naming_convention/
             //var config = new DatadogConfiguration(url: "https://http-intake.logs.us5.datadoghq.com");
@@ -48,7 +49,7 @@ namespace Logging
                         configuration: new DatadogConfiguration(url: "https://http-intake.logs.us5.datadoghq.com")
                     ))
                 .WriteTo.Conditional(evt => !string.IsNullOrEmpty(dataDogLogFilePath), wt =>
-                    wt.File(new JsonFormatter(renderMessage: true), $"{dataDogLogFilePath}{assembly}.json"))
+                    wt.File(new JsonFormatter(renderMessage: true), dataDogFileName))
                 .WriteTo.File(new JsonFormatter(), @$"c:\LoggingPlaygroundLogs\{assembly}-log.txt", rollingInterval: RollingInterval.Day)
                 .WriteTo.Conditional(evt => isDevelopment, wt => wt.Seq(Environment.GetEnvironmentVariable("SEQ_URL") ?? "http://localhost:5341"))
                 .CreateLogger();
